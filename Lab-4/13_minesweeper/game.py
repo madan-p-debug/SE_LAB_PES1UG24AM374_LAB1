@@ -50,6 +50,10 @@ class Minesweeper:
                 self.board.toggle_flag((r, c))
                 continue
 
+            if (r, c) in self.board.flags:
+                print("Cell is flagged. Unflag it before revealing.")
+                continue
+
             if self.board.reveal((r, c)):
                 self.display(reveal_mines=True)
                 print("BOOM! You hit a mine.")

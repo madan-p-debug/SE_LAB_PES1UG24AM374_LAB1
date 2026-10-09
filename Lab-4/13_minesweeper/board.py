@@ -34,6 +34,12 @@ class Board:
         return sum(pos in self.mines for pos in self.neighbors(r, c))
 
     def reveal(self, start):
+        if not isinstance(start, tuple) or len(start) != 2:
+            return False
+        r, c = start
+        if not self.in_bounds(r, c):
+            return False
+
         stack = [start]
         hit_mine = False
         while stack:
@@ -50,6 +56,11 @@ class Board:
         return hit_mine
 
     def toggle_flag(self, pos):
+        if not isinstance(pos, tuple) or len(pos) != 2:
+            return False
+        r, c = pos
+        if not self.in_bounds(r, c):
+            return False
         if pos in self.revealed:
             return False
         if pos in self.flags:
@@ -59,4 +70,9 @@ class Board:
         return True
 
     def won(self):
-        return len(self.revealed) == self.rows * self.cols - self.mine_total
+        return all(
+            (r, c) in self.revealed
+            for r in range(self.rows)
+            for c in range(self.cols)
+            if (r, c) not in self.mines
+        )
