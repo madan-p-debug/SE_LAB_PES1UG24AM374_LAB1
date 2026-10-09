@@ -69,6 +69,51 @@ def test_game_reports_flagged_reveal_attempt(monkeypatch, capsys):
     assert (0, 0) not in game.board.revealed
 
 
+def test_flag_commands_print_one_feedback_line_each(monkeypatch, capsys):
+    game = Minesweeper()
+    inputs = iter(["easy", "f 1 1", "f 1 1", "q"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    game.run()
+
+    output = capsys.readouterr().out
+    assert output.count("Flagged row 1, column 1.") == 1
+    assert output.count("Unflagged row 1, column 1.") == 1
+
+
+def test_flood_fill_prints_only_one_reveal_feedback_line(monkeypatch, capsys):
+    import game as game_module
+
+    board = Board(rows=3, cols=3, mines=0)
+    monkeypatch.setattr(game_module, "Board", lambda *args: board)
+    inputs = iter(["easy", "r 1 1"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    minesweeper = Minesweeper()
+
+    minesweeper.run()
+
+    output = capsys.readouterr().out
+    assert output.count("Revealed row 1, column 1.") == 1
+    assert len(board.revealed) == 9
+    assert "You cleared the board!" in output
+
+
+def test_mine_reveal_prints_one_feedback_line(monkeypatch, capsys):
+    import game as game_module
+
+    board = Board(rows=2, cols=2, mines=1)
+    board.mines = {(0, 0)}
+    monkeypatch.setattr(game_module, "Board", lambda *args: board)
+    inputs = iter(["easy", "r 1 1"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    minesweeper = Minesweeper()
+
+    minesweeper.run()
+
+    output = capsys.readouterr().out
+    assert output.count("BOOM! Reveal at row 1, column 1 hit a mine.") == 1
+
+
 def test_difficulty_selection_sets_board_size_and_mine_count(monkeypatch):
     for difficulty, expected in Minesweeper.DIFFICULTIES.items():
         game = Minesweeper()

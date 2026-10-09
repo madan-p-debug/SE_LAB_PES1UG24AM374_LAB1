@@ -65,17 +65,24 @@ class Minesweeper:
                 continue
 
             if parts[0] == "f":
-                self.board.toggle_flag((r, c))
+                if not self.board.toggle_flag((r, c)):
+                    print("Cannot flag a revealed cell.")
+                elif (r, c) in self.board.flags:
+                    print(f"Flagged row {r + 1}, column {c + 1}.")
+                else:
+                    print(f"Unflagged row {r + 1}, column {c + 1}.")
                 continue
 
             if (r, c) in self.board.flags:
                 print("Cell is flagged. Unflag it before revealing.")
                 continue
 
-            if self.board.reveal((r, c)):
+            hit_mine = self.board.reveal((r, c))
+            if hit_mine:
+                print(f"BOOM! Reveal at row {r + 1}, column {c + 1} hit a mine.")
                 self.display(reveal_mines=True)
-                print("BOOM! You hit a mine.")
                 return
+            print(f"Revealed row {r + 1}, column {c + 1}.")
             if self.board.won():
                 self.display()
                 print("You cleared the board!")
