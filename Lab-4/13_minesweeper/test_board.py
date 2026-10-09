@@ -58,9 +58,7 @@ def test_won_requires_all_non_mine_cells_revealed():
 
 def test_game_reports_flagged_reveal_attempt(monkeypatch, capsys):
     game = Minesweeper()
-    game.board = Board(rows=2, cols=2, mines=0)
-    game.board.flags.add((0, 0))
-    inputs = iter(["r 1 1", "q"])
+    inputs = iter(["easy", "f 1 1", "r 1 1", "q"])
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
 
     game.run()
@@ -69,3 +67,41 @@ def test_game_reports_flagged_reveal_attempt(monkeypatch, capsys):
     assert "Cell is flagged. Unflag it before revealing." in captured
     assert (0, 0) in game.board.flags
     assert (0, 0) not in game.board.revealed
+
+
+def test_difficulty_selection_sets_board_size_and_mine_count(monkeypatch):
+    for difficulty, expected in Minesweeper.DIFFICULTIES.items():
+        game = Minesweeper()
+        inputs = iter([difficulty, "q"])
+        monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+        game.run()
+
+        assert (game.board.rows, game.board.cols, game.board.mine_total) == expected
+        assert len(game.board.mines) == expected[2]
+
+
+def test_invalid_difficulty_reprompts_without_changing_commands(monkeypatch, capsys):
+    game = Minesweeper()
+    inputs = iter(["impossible", "medium", "q"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    game.run()
+
+    output = capsys.readouterr().out
+    assert "Choose easy, medium, or hard." in output
+    assert "Commands: r row col | f row col | q" in output
+    assert (game.board.rows, game.board.cols, game.board.mine_total) == (10, 10, 15)
+
+
+def test_display_aligns_columns_for_boards_wider_than_nine(capsys):
+    game = Minesweeper()
+    game.board = Board(rows=12, cols=12, mines=0)
+
+    game.display()
+
+    lines = capsys.readouterr().out.splitlines()
+    header = lines[1]
+    first_row = lines[2]
+    assert len(header) == len(first_row)
+    assert first_row[header.index("10") + 1] == "#"

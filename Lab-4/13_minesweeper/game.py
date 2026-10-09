@@ -2,12 +2,24 @@ from board import Board
 
 
 class Minesweeper:
+    DIFFICULTIES = {
+        "easy": (6, 6, 6),
+        "medium": (10, 10, 15),
+        "hard": (16, 16, 40),
+    }
+
     def __init__(self):
         self.board = Board()
 
     def display(self, reveal_mines=False):
         b = self.board
-        print("\n   " + " ".join(str(c + 1) for c in range(b.cols)))
+        row_width = len(str(b.rows))
+        col_width = len(str(b.cols))
+        print(
+            "\n"
+            + " " * (row_width + 1)
+            + " ".join(f"{c + 1:>{col_width}}" for c in range(b.cols))
+        )
         for r in range(b.rows):
             cells = []
             for c in range(b.cols):
@@ -22,11 +34,17 @@ class Minesweeper:
                     ch = "*"
                 else:
                     ch = str(b.adjacent_mines(r, c))
-                cells.append(ch)
-            print(f"{r + 1:2} " + " ".join(cells))
+                cells.append(f"{ch:>{col_width}}")
+            print(f"{r + 1:>{row_width}} " + " ".join(cells))
 
     def run(self):
         print("Minesweeper")
+        while True:
+            difficulty = input("Choose difficulty (easy/medium/hard): ").strip().lower()
+            if difficulty in self.DIFFICULTIES:
+                self.board = Board(*self.DIFFICULTIES[difficulty])
+                break
+            print("Choose easy, medium, or hard.")
         print("Commands: r row col | f row col | q")
         while True:
             self.display()

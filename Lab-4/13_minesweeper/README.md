@@ -25,6 +25,10 @@ python main.py
 
 No package installation is required.
 
+At startup, choose `easy` (6×6, 6 mines), `medium` (10×10, 15 mines), or
+`hard` (16×16, 40 mines). Then use `r row col` to reveal, `f row col` to
+toggle a flag, or `q` to quit. Difficulty and board state are kept in memory.
+
 ## Before changing the code
 
 Run the untouched starter, read all three Python files, play several turns, and trace
